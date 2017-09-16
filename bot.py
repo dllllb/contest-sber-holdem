@@ -1,11 +1,11 @@
 import sys
 import json
 
-from preflop_lazy_bot import PreflopLazyPlayer
+from honest_agressive_bot import HonestAggressiveNumPlayersPlayer
 
 if __name__ == '__main__':
 
-    player = PreflopLazyPlayer()
+    player = HonestAggressiveNumPlayersPlayer()
 
     while True:
         line = sys.stdin.readline().rstrip()

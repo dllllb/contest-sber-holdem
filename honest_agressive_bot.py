@@ -1,7 +1,7 @@
 from pypokerengine.players import BasePokerPlayer
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
 
-NB_SIMULATION = 500
+NB_SIMULATION = 350
 
 class HonestAggressivePlayer(BasePokerPlayer):
 
@@ -40,17 +40,22 @@ class HonestAggressivePlayer(BasePokerPlayer):
         self.nb_player = game_info['player_num']
 
     def receive_round_start_message(self, round_count, hole_card, seats):
-        pass
+        self.hole_card = hole_card
+        self.seats = seats
+        self.round_count = round_count
 
     def receive_street_start_message(self, street, round_state):
-        pass
+        self.update_round_info(round_state)
 
     def receive_game_update_message(self, action, round_state):
-        pass
+        self.update_round_info(round_state)
 
     def receive_round_result_message(self, winners, hand_info, round_state):
         pass
 
+    def update_round_info(self, round_state):
+        pass
+
 class HonestAggressiveNumPlayersPlayer(HonestAggressivePlayer):
-        def update_round_info(self, round_state):
-            self.nb_player = len([pl for pl in self.seats if pl['state'] == 'participating'])
+    def update_round_info(self, round_state):
+        self.nb_player = len([pl for pl in self.seats if pl['state'] == 'participating'])

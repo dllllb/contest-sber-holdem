@@ -1,4 +1,4 @@
 {
 	"image": "sberbank/python",
-	"entry_point": "python preflop_lazy_bot.py"
+	"entry_point": "python bot.py"
 }
