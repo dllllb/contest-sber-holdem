@@ -47,7 +47,7 @@ def play_game(game_no):
         FoldMan(),
         HonestDetectivePlayer(),
         HonestDetectivePlayer(),
-    ], 9)
+    ], 9, replace=False)
 
     for i, pl in enumerate(players):
         config.register_player(name=pl.__class__.__name__, algorithm=pl)
