@@ -23,13 +23,16 @@ def parse_json(filename):
         
     seats_lst = []
     actions_lst = []
+    winners_lst = []
     streets = ['preflop', 'flop', 'turn', 'river']
     for rnd in j['rounds']:
         rnd_no = rnd['round_state']['round_count']
+        pot = rnd['round_state']['pot']['main']['amount']
         community_card = rnd['round_state']['community_card']
         state_dct = {}
         for pl in rnd['round_state']['seats']:
             pl['round_count'] = rnd_no
+            pl['starting_pot'] = pot
             seats_lst.append(pl)
             state_dct[pl['uuid']] = pl['start_state']
 
@@ -47,13 +50,18 @@ def parse_json(filename):
                     if act['action'] == 'FOLD':
                         participating_cnt -= 1
 
+        for winner in rnd['winners']:
+            winner['round_count'] = rnd_no
+            winners_lst.append(winner)
 
     seats_df = pd.DataFrame(seats_lst)
     seats_df['game'] = filename.split('/')[-1]
     actions_df = pd.DataFrame(actions_lst)
     actions_df['bot_failed'] = actions_df['bot'].dropna().apply(lambda dct: dct['failed'])
     actions_df['bot_time_elapsed'] = actions_df['bot'].dropna().apply(lambda dct: dct['time_elapsed'])
+    winner_df = pd.DataFrame(winners_lst).rename(columns={'stack': 'win_stack', 'state': 'win_state'})
     df = actions_df.drop('bot', axis=1).merge(seats_df, how = 'left', on=['round_count', 'uuid'])
+    df = df.merge(winner_df, how = 'left', on=['round_count', 'name', 'uuid'])
     df = df.set_index(['game', 'round_count', 'street', 'action_count', 'name', 'uuid']).sort_index().reset_index()
     
     return df
@@ -73,11 +81,11 @@ def read_game_day(folder = 'history/tournament_2017-09-15/', n_jobs = 100):
     games = games.merge(streets_count_average, how='left', on=['name'])
     
     print(games.shape)
-    print(time() - start_time)
+    print(time() - start_time, 'sec')
     return games
 
 
-def win_rate_calc(df):
+def win_rate_calc(df, NB_SIMULATION):
     df['win_rate'] = df.apply(lambda row: estimate_hole_card_win_rate(
                                     nb_simulation=NB_SIMULATION,
                                     nb_player=row['nb_player'],
@@ -88,16 +96,19 @@ def win_rate_calc(df):
     
 
 def calculate_bluffiness(games_df, games_per_name=100, NB_SIMULATION=100, n_jobs=100):
+    start_time = time()
     desicions = games_df.groupby(['name']).head(games_per_name)
-    step = 20
+    print(desicions.shape[0], 'rows')
+    step = 100
     chuncks = []
-    for i in range(0, games_df.shape[0], step):
-        chuncks.append((games_df.iloc[i:i+step].copy(), ))
-
+    for i in range(0, desicions.shape[0], step):
+        chuncks.append((desicions.iloc[i:i+step].copy(), NB_SIMULATION))
+    print(len(chuncks), 'chunks done')
     with closing(multiprocessing.Pool(n_jobs)) as pool:
-        tasks = [pool.apply_async(win_rate_calc, df) for df in chuncks]
+        tasks = [pool.apply_async(win_rate_calc, chunk) for chunk in chuncks]
         df_list = [task.get(999999) for task in tasks] 
 
     win_rate = pd.concat(df_list).reset_index(drop=True)
+    print(time() - start_time, 'sec')
     return win_rate
 
