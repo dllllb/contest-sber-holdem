@@ -54,7 +54,8 @@ def parse_json(filename):
     actions_df['bot_failed'] = actions_df['bot'].dropna().apply(lambda dct: dct['failed'])
     actions_df['bot_time_elapsed'] = actions_df['bot'].dropna().apply(lambda dct: dct['time_elapsed'])
     df = actions_df.drop('bot', axis=1).merge(seats_df, how = 'left', on=['round_count', 'uuid'])
-    df = df.set_index(['game', 'round_count', 'street', 'action_count', 'name', 'uuid']).sort_index()
+    df = df.set_index(['game', 'round_count', 'street', 'action_count', 'name', 'uuid']).sort_index().reset_index()
+    
     return df
 
 
@@ -65,7 +66,12 @@ def read_game_day(folder = 'history/tournament_2017-09-15/', n_jobs = 100):
         tasks = [pool.apply_async(parse_json, f) for f in filenames]
         df_list = [task.get(999999) for task in tasks] 
 
-    games = pd.concat(df_list).reset_index()
+    games = pd.concat(df_list)
+    # counting bluff rate = streets_count_average
+    streets_count_average = games.groupby(['game', 'round_count', 'name'])['street'].nunique()\
+      .groupby(['name']).mean().to_frame('streets_count_average').reset_index()
+    games = games.merge(streets_count_average, how='left', on=['name'])
+    
     print(games.shape)
     print(time() - start_time)
     return games
