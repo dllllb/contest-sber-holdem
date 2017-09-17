@@ -13,9 +13,10 @@ from fold_man import FoldMan
 from honest_agressive_bot import HonestAggressivePlayer, HonestAggressiveNumPlayersPlayer
 from preflop_lazy_bot import PreflopLazyPlayer
 from antifold_player import AntiFoldPlayer
+from careful_player import CarefulPlayer
 
-n_jobs = 4
-num_games = 16
+n_jobs = 100
+num_games = 256
 
 
 def play_game(game_no):
@@ -27,11 +28,11 @@ def play_game(game_no):
 
     players = [
         AntiFoldPlayer(),
-        PreflopLazyPlayer(),
+        HonestAggressiveNumPlayersPlayer(),
         HonestAggressivePlayer(),
         HonestAggressiveNumPlayersPlayer(),
         HonestPlayer(),
-        RandomPlayer(),
+        CarefulPlayer(),
         RandomPlayer(),
         FishPlayer(),
         FishPlayer(),
