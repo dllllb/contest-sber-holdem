@@ -43,37 +43,23 @@ class HonestDetectivePlayer(BasePokerPlayer):
         else:
             community_card = round_state['community_card']
             win_rate = estimate_hole_card_win_rate(
-                    nb_simulation=NB_SIMULATION,
-                    nb_player=self.nb_player,
-                    hole_card=gen_cards(hole_card),
-                    community_card=gen_cards(community_card)
-                    )
+                nb_simulation=NB_SIMULATION,
+                nb_player=self.nb_player,
+                hole_card=gen_cards(hole_card),
+                community_card=gen_cards(community_card)
+            )
 
             if self.street != 'preflop':
-                honesty_rate = sum(
+                n_honest = sum(
                     self.honesty_level[pl['name']]
                     for pl in self.seats if pl['state'] == 'participating'
                 )
-                win_rate = win_rate / float(honesty_rate+1)*.8
+                win_rate = win_rate * (win_rate**(n_honest-1) / (.75 + win_rate))**n_honest
 
-            if win_rate >= 0.9:
+            if win_rate >= 0.5:
                 try:
                     action = valid_actions[2]  # fetch RAISE action info
                     action['amount'] = action['amount']['max']
-                except:
-                    # all-in already
-                    action = valid_actions[1]  # fetch CALL action info
-            elif win_rate >= 0.7:
-                try:
-                    action = valid_actions[2]  # fetch RAISE action info
-                    action['amount'] = (action['amount']['min'] + action['amount']['max'])/2
-                except:
-                    # all-in already
-                    action = valid_actions[1]  # fetch CALL action info
-            elif win_rate >= 0.5:
-                try:
-                    action = valid_actions[2]  # fetch RAISE action info
-                    action['amount'] = action['amount']['min']+1
                 except:
                     # all-in already
                     action = valid_actions[1]  # fetch CALL action info
@@ -82,7 +68,6 @@ class HonestDetectivePlayer(BasePokerPlayer):
             else:
                 action = valid_actions[0]  # fetch FOLD action info
 
-        # print('win_rate', win_rate, 'action', action)
         return action['action'], action['amount']
 
 
@@ -104,10 +89,6 @@ class HonestDetectivePlayer(BasePokerPlayer):
             mean_round = np.mean(stats)
             if mean_round > 1.01 and mean_round < 2 and round_count > 10:
                 self.honesty_level[nm] = 1
-            elif mean_round > 1.01 and mean_round < 1.5 and round_count > 10:
-                self.honesty_level[nm] = 1
-            elif mean_round > 1.01 and mean_round < 2 and round_count > 20:
-                self.honesty_level[nm] = 2
 
     def receive_street_start_message(self, street, round_state):
         self.street = street # important to update before round_state

@@ -11,14 +11,14 @@ from fish_player import FishPlayer
 from honest_player import HonestPlayer
 from fold_man import FoldMan
 # add custom bots
-from honest_agressive_bot import HonestAggressivePlayer, HonestAggressiveNumPlayersPlayer
+from honest_agressive_bot import HonestAggressivePlayer
 from preflop_lazy_bot import PreflopLazyPlayer
-from antifold_player import AntiFoldPlayer
+from honest_minmax_player import HonestMinMaxPlayer
 from careful_player import CarefulPlayer
 from honest_detective_bot import HonestDetectivePlayer
 
-n_jobs = 1
-num_games = 2
+n_jobs = 64
+num_games = 512
 
 
 def play_game(game_no):
@@ -28,28 +28,24 @@ def play_game(game_no):
         small_blind_amount=15,
         summary_file=None)
 
-    players = np.random.choice([
-        AntiFoldPlayer(),
-        AntiFoldPlayer(),
-        HonestAggressiveNumPlayersPlayer(),
-        HonestAggressiveNumPlayersPlayer(),
-        HonestAggressivePlayer(),
-        HonestAggressivePlayer(),
-        HonestPlayer(),
-        HonestPlayer(),
-        CarefulPlayer(),
-        CarefulPlayer(),
-        RandomPlayer(),
-        RandomPlayer(),
-        FishPlayer(),
-        FishPlayer(),
-        FoldMan(),
-        FoldMan(),
-        HonestDetectivePlayer(),
-        HonestDetectivePlayer(),
-    ], 9, replace=False)
+    possible_players = [
+        HonestMinMaxPlayer,
+        HonestAggressivePlayer,
+        PreflopLazyPlayer,
+        HonestPlayer,
+        CarefulPlayer,
+        RandomPlayer,
+        FishPlayer,
+        FishPlayer,
+        FoldMan,
+        FoldMan,
+        HonestDetectivePlayer,
+    ]
 
-    for i, pl in enumerate(players):
+    players = np.random.choice(possible_players*3, 9, replace=False)
+
+    for i, pl_cls in enumerate(players):
+        pl = pl_cls()
         config.register_player(name=pl.__class__.__name__, algorithm=pl)
 
     print('Starting game {}'.format(game_no))
@@ -76,9 +72,7 @@ with closing(multiprocessing.Pool(n_jobs)) as pool:
     args = [(game_no,) for game_no in range(num_games)]
     tasks = [pool.apply_async(play_game, arg) for arg in args]
     game_results = [task.get(999999) for task in tasks]
-    game_scores = pd.DataFrame(
-        [pd.Series(r) for r in game_results]
-    ).sum().div(num_games)
+    game_scores = pd.DataFrame(game_results).mean()
 
 
 print('Elapsed time: {}'.format(datetime.datetime.now() - start_time))

@@ -1,9 +1,19 @@
+import pandas as pd
+
 from pypokerengine.players import BasePokerPlayer
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
 
 NB_SIMULATION = 350
 
 class HonestAggressivePlayer(BasePokerPlayer):
+    def __init__(self, streets_count_average_file='streets_count_average_2017-09-16.csv'):
+        try:
+            self.streets_count_average = pd.read_csv(streets_count_average_file).set_index('name')['streets_count_average']
+            self.foldbots = set(self.streets_count_average[self.streets_count_average==1].index)
+        except:
+            # print('Error loading', streets_count_average_file )
+            self.streets_count_average = pd.Series([])
+            self.foldbots = set({})
 
     def declare_action(self, valid_actions, hole_card, round_state, bot_state=None):
         my_uuid = self.uuid
@@ -45,6 +55,7 @@ class HonestAggressivePlayer(BasePokerPlayer):
         self.round_count = round_count
 
     def receive_street_start_message(self, street, round_state):
+        self.street = street # important to update before round_state
         self.update_round_info(round_state)
 
     def receive_game_update_message(self, action, round_state):
@@ -54,8 +65,19 @@ class HonestAggressivePlayer(BasePokerPlayer):
         pass
 
     def update_round_info(self, round_state):
-        pass
-
-class HonestAggressiveNumPlayersPlayer(HonestAggressivePlayer):
-    def update_round_info(self, round_state):
-        self.nb_player = len([pl for pl in self.seats if pl['state'] == 'participating'])
+        self.actions_hist  = round_state['action_histories']
+        self.community_card = round_state['community_card']
+        self.seats = round_state['seats']
+        self.round_state = round_state
+        if self.street == 'preflop':
+            self.nb_player = len([pl for pl in self.seats
+                                  if (pl['state'] == 'participating')
+                                  and (pl['name'] not in self.foldbots)])
+        else:
+            self.nb_player = len([pl for pl in self.seats if pl['state'] == 'participating'])
+            # if foldman bot is participating, exclude him
+            participating = set([pl['name'] for pl in self.seats if pl['state'] == 'participating'])
+            participating_foldbots = self.foldbots & participating
+            if len(participating_foldbots) > 0:
+                # print('Not a foldbot:', participating_foldbots)
+                self.foldbots = self.foldbots - participating

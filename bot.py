@@ -1,11 +1,11 @@
 import sys
 import json
 
-from honest_agressive_bot import HonestAggressiveNumPlayersPlayer
+from honest_agressive_bot import HonestAggressivePlayer
 
 if __name__ == '__main__':
 
-    player = HonestAggressiveNumPlayersPlayer()
+    player = HonestAggressivePlayer()
 
     while True:
         line = sys.stdin.readline().rstrip()
