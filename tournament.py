@@ -12,6 +12,7 @@ from fold_man import FoldMan
 # add custom bots
 from honest_agressive_bot import HonestAggressivePlayer, HonestAggressiveNumPlayersPlayer
 from preflop_lazy_bot import PreflopLazyPlayer
+from antifold_player import AntiFoldPlayer
 
 n_jobs = 4
 num_games = 16
@@ -25,7 +26,7 @@ def play_game(game_no):
         summary_file=None)
 
     players = [
-        PreflopLazyPlayer(),
+        AntiFoldPlayer(),
         PreflopLazyPlayer(),
         HonestAggressivePlayer(),
         HonestAggressiveNumPlayersPlayer(),
