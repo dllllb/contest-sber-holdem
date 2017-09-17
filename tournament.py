@@ -15,7 +15,7 @@ from preflop_lazy_bot import PreflopLazyPlayer
 from antifold_player import AntiFoldPlayer
 from careful_player import CarefulPlayer
 
-n_jobs = 100
+n_jobs = 64
 num_games = 256
 
 
