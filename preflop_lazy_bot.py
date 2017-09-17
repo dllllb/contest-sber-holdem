@@ -1,7 +1,7 @@
 from pypokerengine.players import BasePokerPlayer
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
 
-NB_SIMULATION = 500
+NB_SIMULATION = 350
 
 class PreflopLazyPlayer(BasePokerPlayer):
     def declare_action(self, valid_actions, hole_card, round_state, bot_state=None):

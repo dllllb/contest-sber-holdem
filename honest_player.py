@@ -1,7 +1,7 @@
 from pypokerengine.players import BasePokerPlayer
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
 
-NB_SIMULATION = 500
+NB_SIMULATION = 350
 
 class HonestPlayer(BasePokerPlayer):
 
