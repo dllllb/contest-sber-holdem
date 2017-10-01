@@ -1,4 +1,4 @@
 {
 	"image": "sberbank/python",
-	"entry_point": "python bot.py"
+	"entry_point": "sh run.sh"
 }

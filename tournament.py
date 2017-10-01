@@ -1,24 +1,22 @@
 import datetime
+import pandas as pd
+import numpy as np
 import multiprocessing
 from contextlib import closing
 
-import numpy as np
-import pandas as pd
-from careful_player import CarefulPlayer
-from fish_player import FishPlayer
-from fold_man import FoldMan
-from honest_detective_bot import HonestDetectivePlayer
-from honest_minmax_player import HonestMinMaxPlayer
-from honest_player import HonestPlayer
-from preflop_lazy_bot import PreflopLazyPlayer
 from pypokerengine.api.game import setup_config, start_poker
-
+from bots.random_player import RandomPlayer
+from bots.fish_player import FishPlayer
+from bots.honest_player import HonestPlayer
+from bots.fold_man import FoldMan
 # add custom bots
 from bots.honest_agressive_bot import HonestAggressivePlayer
-from bots.random_player import RandomPlayer
+from bots.preflop_lazy_bot import PreflopLazyPlayer
+from bots.honest_minmax_player import HonestMinMaxPlayer
+from bots.careful_player import CarefulPlayer
 
-n_jobs = 64
-num_games = 512
+n_jobs = 1
+num_games = 2
 
 
 def play_game(game_no):
@@ -36,10 +34,7 @@ def play_game(game_no):
         CarefulPlayer,
         RandomPlayer,
         FishPlayer,
-        FishPlayer,
         FoldMan,
-        FoldMan,
-        HonestDetectivePlayer,
     ]
 
     players = np.random.choice(possible_players*3, 9, replace=False)

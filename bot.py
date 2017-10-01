@@ -1,5 +1,5 @@
-import json
 import sys
+import json
 
 from bots.honest_agressive_bot import HonestAggressivePlayer
 
