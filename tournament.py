@@ -1,21 +1,21 @@
 import datetime
-import pandas as pd
-import numpy as np
 import multiprocessing
 from contextlib import closing
-from copy import deepcopy
-import os
-from pypokerengine.api.game import setup_config, start_poker
-from random_player import RandomPlayer
-from fish_player import FishPlayer
-from honest_player import HonestPlayer
-from fold_man import FoldMan
-# add custom bots
-from honest_agressive_bot import HonestAggressivePlayer
-from preflop_lazy_bot import PreflopLazyPlayer
-from honest_minmax_player import HonestMinMaxPlayer
+
+import numpy as np
+import pandas as pd
 from careful_player import CarefulPlayer
+from fish_player import FishPlayer
+from fold_man import FoldMan
 from honest_detective_bot import HonestDetectivePlayer
+from honest_minmax_player import HonestMinMaxPlayer
+from honest_player import HonestPlayer
+from preflop_lazy_bot import PreflopLazyPlayer
+from pypokerengine.api.game import setup_config, start_poker
+
+# add custom bots
+from bots.honest_agressive_bot import HonestAggressivePlayer
+from bots.random_player import RandomPlayer
 
 n_jobs = 64
 num_games = 512

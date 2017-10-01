@@ -1,7 +1,7 @@
-import sys
 import json
+import sys
 
-from honest_agressive_bot import HonestAggressivePlayer
+from bots.honest_agressive_bot import HonestAggressivePlayer
 
 if __name__ == '__main__':
 
