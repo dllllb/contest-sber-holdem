@@ -1,4 +1,4 @@
 {
-	"image": "sberbank/python",
-	"entry_point": "sh run.sh"
+	"image": "sb-holdem",
+	"entry_point": "python bot.py"
 }
