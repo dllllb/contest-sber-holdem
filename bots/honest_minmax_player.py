@@ -2,6 +2,9 @@ from bots.template_bot import TemplatePlayer
 
 
 class HonestMinMaxPlayer(TemplatePlayer):
+    def __init__(self, props):
+        super().__init__(props)
+
     def strategy(self, features, valid_actions):
         win_rate = features['win_rate']
 

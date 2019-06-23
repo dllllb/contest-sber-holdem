@@ -1,0 +1,42 @@
+{
+  "n_jobs": 1,
+  "num_games": 2,
+  "n_players": 5,
+  "max_round": 50,
+  "initial_stack": 1500,
+  "small_blind_amount": 15,
+  "bots": [
+    {
+      "module": "bots.honest_minmax_player",
+      "class": "HonestMinMaxPlayer"
+    },
+    {
+      "module": "bots.honest_agressive_bot",
+      "class": "HonestAggressivePlayer"
+    },
+    {
+      "module": "bots.preflop_lazy_bot",
+      "class": "PreflopLazyPlayer"
+    },
+    {
+      "module": "bots.honest_player",
+      "class": "HonestPlayer"
+    },
+    {
+      "module": "bots.careful_player",
+      "class": "CarefulPlayer"
+    },
+    {
+      "module": "bots.random_player",
+      "class": "RandomPlayer"
+    },
+    {
+      "module": "bots.fish_player",
+      "class": "FishPlayer"
+    },
+    {
+      "module": "bots.fold_man",
+      "class": "FoldMan"
+    }
+  ]
+}

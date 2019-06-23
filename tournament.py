@@ -1,46 +1,37 @@
 import datetime
+import importlib
+
 import pandas as pd
 import numpy as np
+import json
+import argparse
 import multiprocessing
 from contextlib import closing
 
 from pypokerengine.api.game import setup_config, start_poker
-from bots.random_player import RandomPlayer
-from bots.fish_player import FishPlayer
-from bots.honest_player import HonestPlayer
-from bots.fold_man import FoldMan
-# add custom bots
-from bots.honest_agressive_bot import HonestAggressivePlayer
-from bots.preflop_lazy_bot import PreflopLazyPlayer
-from bots.honest_minmax_player import HonestMinMaxPlayer
-from bots.careful_player import CarefulPlayer
-
-n_jobs = 1
-num_games = 2
 
 
-def play_game(game_no):
+def play_game(game_no, conf):
+    n_players = conf['n_players']
+
     config = setup_config(
-        max_round=50,
-        initial_stack=1500,
-        small_blind_amount=15,
+        max_round=conf['max_round'],
+        initial_stack=conf['initial_stack'],
+        small_blind_amount=conf['small_blind_amount'],
         summary_file=None)
 
-    possible_players = [
-        HonestMinMaxPlayer,
-        HonestAggressivePlayer,
-        PreflopLazyPlayer,
-        HonestPlayer,
-        CarefulPlayer,
-        RandomPlayer,
-        FishPlayer,
-        FoldMan,
-    ]
+    bots = list()
+    for bot in conf['bots']:
+        m = importlib.import_module(bot['module'])
+        cl = getattr(m, bot['class'])
+        props = bot.get('properties', dict())
+        bots.append((cl, props))
 
-    players = np.random.choice(possible_players*3, 9, replace=False)
+    players = np.random.choice(len(bots), n_players, replace=False)
 
-    for i, pl_cls in enumerate(players):
-        pl = pl_cls()
+    for idx in players:
+        pl_cls, pl_props = bots[idx]
+        pl = pl_cls(pl_props)
         config.register_player(name=pl.__class__.__name__, algorithm=pl)
 
     print('Starting game {}'.format(game_no))
@@ -62,13 +53,23 @@ def play_game(game_no):
     return result
 
 
-start_time = datetime.datetime.now()
-with closing(multiprocessing.Pool(n_jobs)) as pool:
-    args = [(game_no,) for game_no in range(num_games)]
-    tasks = [pool.apply_async(play_game, arg) for arg in args]
-    game_results = [task.get(999999) for task in tasks]
-    game_scores = pd.DataFrame(game_results).mean()
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--conf', required=True)
+    args = parser.parse_args()
 
+    with open(args.conf) as f:
+        conf = json.load(f)
 
-print('Elapsed time: {}'.format(datetime.datetime.now() - start_time))
-print(game_scores)
+    n_jobs = conf['n_jobs']
+    num_games = conf['num_games']
+
+    start_time = datetime.datetime.now()
+    with closing(multiprocessing.Pool(n_jobs)) as pool:
+        args = [(game_no,) for game_no in range(num_games)]
+        tasks = [pool.apply_async(play_game, arg) for arg in args]
+        game_results = [task.get(999999) for task in tasks]
+        game_scores = pd.DataFrame(game_results).mean()
+
+    print('Elapsed time: {}'.format(datetime.datetime.now() - start_time))
+    print(game_scores)

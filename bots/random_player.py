@@ -3,8 +3,9 @@ from bots.template_bot import TemplatePlayer
 
 
 class RandomPlayer(TemplatePlayer):
-    def __init__(self):
-        self.fold_ratio = self.call_ratio = raise_ratio = 1.0 / 3
+    def __init__(self, props):
+        super().__init__(props)
+        self.fold_ratio = self.call_ratio = 1.0 / 3  # =raize_ratio
 
     def strategy(self, features, valid_actions):
         choice = self.__choice_action(valid_actions)

@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
-import calc_winrate
 
 
 def win_rate_calc_py(round_state, hole_card, n_players):
@@ -22,6 +21,8 @@ def street2num(street):
 
 
 def win_rate_calc_cpp(round_state, hole_card, n_players):
+    import calc_winrate
+
     holds_per_round = [0, 0, 0, 0]
 
     for street, actions in round_state['action_histories'].items():
@@ -39,11 +40,11 @@ def win_rate_calc_cpp(round_state, hole_card, n_players):
     return win_rate
 
 
-def vectorize_state(uuid, round_state, bot_state, valid_actions, hole_card, time_fts=True):
-    '''
+def vectorize_state(uuid, round_state, bot_state, valid_actions, hole_card, win_rate_calc, time_fts=True):
+    """
     declare_action(...)
     state = vectorize_state(uuid, round_state, bot_state, valid_actions, hole_card)
-    '''
+    """
 
     features = pd.Series()
     features.loc['main_pot'] = round_state['pot']['main']['amount']
@@ -73,7 +74,7 @@ def vectorize_state(uuid, round_state, bot_state, valid_actions, hole_card, time
     n_players = sum([p['state'] in {'participating', 'allin'} for p in round_state['seats']])
     features.loc['n_players'] = n_players
 
-    features.loc['win_rate'] = win_rate_calc_py(round_state, hole_card, n_players)
+    features.loc['win_rate'] = win_rate_calc(round_state, hole_card, n_players)
 
     features.loc['current_stack'] = filter(lambda x: x['uuid'] == uuid, round_state['seats']).__next__()['stack']
     # my_uuid = self.uuid

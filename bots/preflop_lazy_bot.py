@@ -2,6 +2,9 @@ from bots.template_bot import TemplatePlayer
 
 
 class PreflopLazyPlayer(TemplatePlayer):
+    def __init__(self, props):
+        super().__init__(props)
+
     def strategy(self, features, valid_actions):
         if features['street'] == 0:
             if features['lucky_preflop'] == 0:

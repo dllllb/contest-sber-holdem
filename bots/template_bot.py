@@ -1,10 +1,19 @@
 from pypokerengine.players import BasePokerPlayer
-from bot_features import vectorize_state
+from bot_features import vectorize_state, win_rate_calc_py, win_rate_calc_cpp
 
 
 class TemplatePlayer(BasePokerPlayer):
+    def __init__(self, props):
+        super().__init__()
+
+        wr_calc = props.get('wr_calc', 'py')
+        if wr_calc == 'py':
+            self.wrc = win_rate_calc_py
+        else:
+            self.wrc = win_rate_calc_cpp
+
     def declare_action(self, valid_actions, hole_card, round_state, bot_state=None):
-        features = vectorize_state(self.uuid, round_state, bot_state, valid_actions, hole_card)
+        features = vectorize_state(self.uuid, round_state, bot_state, valid_actions, hole_card, self.wrc)
         return self.strategy(features, valid_actions)
 
     def strategy(self, features, valid_actions):
