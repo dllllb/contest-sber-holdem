@@ -1,0 +1,3 @@
+pandas>=0.24
+numpy>=1.16
+git+https://github.com/sberbank-ai/holdem-challenge.git/#egg=sberbank-pypokerengine&subdirectory=PyPokerEngine
