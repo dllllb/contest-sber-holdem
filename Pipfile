@@ -1,0 +1,16 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+pylint = "*"
+
+[packages]
+pandas = ">=0.24"
+numpy = ">=1.16"
+sberbank-pypokerengine = {git = "https://github.com/sberbank-ai/holdem-challenge.git/", subdirectory = "PyPokerEngine"}
+
+[requires]
+python_version = "3.8"

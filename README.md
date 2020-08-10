@@ -1,0 +1,2 @@
+- [Contest](http://holdem.sberbank.ai/)
+- [github](https://github.com/sberbank-ai/holdem-challenge)
