@@ -5,7 +5,7 @@ from bots.honest_agressive_bot import HonestAggressivePlayer
 
 if __name__ == '__main__':
 
-    player = HonestAggressivePlayer()
+    player = HonestAggressivePlayer({})
 
     while True:
         line = sys.stdin.readline().rstrip()
