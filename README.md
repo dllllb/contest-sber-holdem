@@ -1,1 +1,1 @@
-[github](https://github.com/sberbank-ai/holdem-challenge)
+[Contest GitHub repo](https://github.com/sberbank-ai/holdem-challenge)
